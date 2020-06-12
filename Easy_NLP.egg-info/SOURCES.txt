@@ -1,0 +1,7 @@
+Easy_NLP
+Easy_NLP/__init__.py
+Easy_NLP.egg-info/PKG-INFO
+Easy_NLP.egg-info/SOURCES.txt
+Easy_NLP.egg-info/dependency_links.txt
+Easy_NLP.egg-info/requires.txt
+Easy_NLP.egg-info/top_level.txt

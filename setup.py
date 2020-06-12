@@ -1,4 +1,4 @@
-import setuptools
+import setuptools,find_packages
 
 
 setuptools.setup(
@@ -8,6 +8,7 @@ setuptools.setup(
      author="Boumadane Abdelmoumene",
      author_email="fa_boumadane@esi.dz",
      description="An NLP Utility Package",
+     license='MIT'
      long_description=open('README.md').read(),
      long_description_content_type="text/markdown",
      url="https://github.com/Moumeneb1/IRIT_INTERNSHIP",
@@ -18,7 +19,6 @@ setuptools.setup(
          "Operating System :: OS Independent",
      ],
      install_requires=[
-       "transformers",
        "pandas",
        "numpy",
    ],

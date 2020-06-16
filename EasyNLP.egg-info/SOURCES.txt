@@ -1,8 +1,0 @@
-README.md
-setup.py
-EasyNLP/__init__.py
-EasyNLP.egg-info/PKG-INFO
-EasyNLP.egg-info/SOURCES.txt
-EasyNLP.egg-info/dependency_links.txt
-EasyNLP.egg-info/requires.txt
-EasyNLP.egg-info/top_level.txt

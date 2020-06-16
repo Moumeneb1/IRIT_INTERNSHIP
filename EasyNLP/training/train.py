@@ -4,7 +4,6 @@ import numpy as np
 from metrics import flat_accuracy, flat_f1, flat_precision, flat_recall
 import sys
 
-
 import time
 import datetime
 

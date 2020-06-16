@@ -20,7 +20,7 @@ def format_time(elapsed):
     return str(datetime.timedelta(seconds=elapsed_rounded))
 
 
-def train_noFeatures(model, train_dataloader, validation_dataloader, epochs, device, optimizer,scheduler,criterion , writer=0, print_each=40):
+def train_noFeatures(model, train_dataloader, validation_dataloader, epochs, device, optimizer, scheduler, criterion, writer=0, print_each=40):
     # Set the seed value all ovr the place to make this reproducible.
     seed_val = 2
 
@@ -68,16 +68,13 @@ def train_noFeatures(model, train_dataloader, validation_dataloader, epochs, dev
                 # Report progress.
                 print('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.'.format(
                     step, len(train_dataloader), elapsed))
-
-
-            #move batch data to device (cpu or gpu) 
+            # move batch data to device (cpu or gpu)
             batch = tuple(t.to(device) for t in batch)
-            
+
             # `batch` contains three pytorch tensors:
             #   [0]: input ids
             #   [1]: attention masks
             #   [2]: labels
-
 
             model.zero_grad()
             outputs = model(batch)
@@ -88,11 +85,11 @@ def train_noFeatures(model, train_dataloader, validation_dataloader, epochs, dev
             label_ids = batch[2]
             # print(logits)
 
-            loss = criterion(logits.view(-1, model.n_class), label_ids.view(-1))
-            
-            #Move logits back to cpu for metrics calculations 
+            loss = criterion(logits.view(-1, model.n_class),
+                             label_ids.view(-1))
+
+            # Move logits back to cpu for metrics calculations
             logits = logits.detach().cpu().numpy()
-            
 
             # Calculate the accuracy for this batch of test sentences.
             current_accuracy = flat_accuracy(logits, label_ids)
@@ -180,13 +177,13 @@ def train_noFeatures(model, train_dataloader, validation_dataloader, epochs, dev
 
             # Get the "logits" output by the model. The "logits" are the output
             # values prior to applying an activation function like the softmax.
-            
+
             logits = outputs[0]
             label_ids = batch[2]
-            
-            validation_loss += criterion(logits.view(-1, model.n_class), label_ids.view(-1))
-            
-            
+
+            validation_loss += criterion(logits.view(-1,
+                                                     model.n_class), label_ids.view(-1))
+
             # print(logits)
 
             # Move logits and labels to CPU
@@ -238,11 +235,10 @@ def train_noFeatures(model, train_dataloader, validation_dataloader, epochs, dev
         print("  Recall: {0:.2f}".format(eval_recall/nb_eval_steps))
         print("  Precision: {0:.2f}".format(eval_precesion/nb_eval_steps))
         print("  Validation took: {:}".format(format_time(time.time() - t0)))
-    return (eval_accuracy/nb_eval_steps,eval_f1/nb_eval_steps,eval_recall/nb_eval_steps,eval_precesion/nb_eval_steps,)
+    return (eval_accuracy/nb_eval_steps, eval_f1/nb_eval_steps, eval_recall/nb_eval_steps, eval_precesion/nb_eval_steps,)
 
 
-
-def train_crossValidation(model, train_dataloader, validation_dataloader, epochs, device, optimizer,scheduler,criterion , writer=0, print_each=40):
+def train_crossValidation(model, train_dataloader, validation_dataloader, epochs, device, optimizer, scheduler, criterion, writer=0, print_each=40):
     # Set the seed value all ovr the place to make this reproducible.
     seed_val = 2
 
@@ -290,16 +286,13 @@ def train_crossValidation(model, train_dataloader, validation_dataloader, epochs
                 # Report progress.
                 print('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.'.format(
                     step, len(train_dataloader), elapsed))
-
-
-            #move batch data to device (cpu or gpu) 
+            # move batch data to device (cpu or gpu)
             batch = tuple(t.to(device) for t in batch)
-            
+
             # `batch` contains three pytorch tensors:
             #   [0]: input ids
             #   [1]: attention masks
             #   [2]: labels
-
 
             model.zero_grad()
             outputs = model(batch)
@@ -310,11 +303,11 @@ def train_crossValidation(model, train_dataloader, validation_dataloader, epochs
             label_ids = batch[-1]
             # print(logits)
 
-            loss = criterion(logits.view(-1, model.n_class), label_ids.view(-1))
-            
-            #Move logits back to cpu for metrics calculations 
+            loss = criterion(logits.view(-1, model.n_class),
+                             label_ids.view(-1))
+
+            # Move logits back to cpu for metrics calculations
             logits = logits.detach().cpu().numpy()
-            
 
             # Calculate the accuracy for this batch of test sentences.
             current_accuracy = flat_accuracy(logits, label_ids)
@@ -375,7 +368,7 @@ def train_crossValidation(model, train_dataloader, validation_dataloader, epochs
         model.eval()
 
         # Tracking variables
-        predictions, true_labels  = [], []
+        predictions, true_labels = [], []
         eval_loss, eval_accuracy, eval_f1, eval_recall, eval_precesion = 0, 0, 0, 0, 0
         nb_eval_steps, nb_eval_examples = 0, 0
         validation_loss = 0
@@ -403,24 +396,23 @@ def train_crossValidation(model, train_dataloader, validation_dataloader, epochs
 
             # Get the "logits" output by the model. The "logits" are the output
             # values prior to applying an activation function like the softmax.
-            
+
             logits = outputs[0]
             label_ids = batch[-1]
             predictions.extend(logits)
             true_labels.extend(label_ids)
-            
-            
+
             pred_flat = np.argmax(predictions, axis=1)
-            true_labels=    [dic_cat_labels.get(x) for x in true_labels]
+            true_labels = [dic_cat_labels.get(x) for x in true_labels]
             pred_flat = [dic_cat_labels.get(x) for x in pred_flat]
 
-            cr= classification_report(true_labels,pred_flat,digits=4)
-            print(accuracy_score(pred_flat_cat,true_labels_cat))
+            cr = classification_report(true_labels, pred_flat, digits=4)
+            print(accuracy_score(pred_flat_cat, true_labels_cat))
             print(cr)
-            
-            validation_loss += criterion(logits.view(-1, model.n_class), label_ids.view(-1))
-            
-            
+
+            validation_loss += criterion(logits.view(-1,
+                                                     model.n_class), label_ids.view(-1))
+
             # print(logits)
 
             # Move logits and labels to CPU
@@ -472,26 +464,14 @@ def train_crossValidation(model, train_dataloader, validation_dataloader, epochs
         print("  Recall: {0:.2f}".format(eval_recall/nb_eval_steps))
         print("  Precision: {0:.2f}".format(eval_precesion/nb_eval_steps))
         print("  Validation took: {:}".format(format_time(time.time() - t0)))
-    return (eval_accuracy/nb_eval_steps,eval_f1/nb_eval_steps,eval_recall/nb_eval_steps,eval_precesion/nb_eval_steps,)
-
-
-
-
-
-
-
-
-
-
-
-
+    return (eval_accuracy/nb_eval_steps, eval_f1/nb_eval_steps, eval_recall/nb_eval_steps, eval_precesion/nb_eval_steps,)
 
     # load model
 
     # reset patience
 
 
-def train_Features(model, train_dataloader, validation_dataloader, epochs, device, optimizer, scheduler,criterion, writer=0, print_each=40):
+def train_Features(model, train_dataloader, validation_dataloader, epochs, device, optimizer, scheduler, criterion, writer=0, print_each=40):
     # Set the seed value all ovr the place to make this reproducible.
     seed_val = 2
 
@@ -557,7 +537,7 @@ def train_Features(model, train_dataloader, validation_dataloader, epochs, devic
             # (source: https://stackoverflow.com/questions/48001598/why-do-we-need-to-call-zero-grad-in-pytorch)
             model.zero_grad()
 
-            #move batch to device (cpu) or gpu
+            # move batch to device (cpu) or gpu
             batch = tuple(t.to(device) for t in batch)
 
             outputs = model(batch)
@@ -565,10 +545,11 @@ def train_Features(model, train_dataloader, validation_dataloader, epochs, devic
             # The call to `model` always returns a tuple, so we need to pull the
             # loss value out of the tuple.
             logits = outputs[0]
-            
-            loss = criterion(logits.view(-1, model.n_class), label_ids.view(-1))
-        
-            # move logits and labels to cpu for metrics computing 
+
+            loss = criterion(logits.view(-1, model.n_class),
+                             label_ids.view(-1))
+
+            # move logits and labels to cpu for metrics computing
             logits = logits.detach().cpu().numpy()
             label_ids = batch[-1].detach().cpu()
 
@@ -641,7 +622,6 @@ def train_Features(model, train_dataloader, validation_dataloader, epochs, devic
             # Add batch to GPU
             batch = tuple(t.to(device) for t in batch)
 
-
             # Telling the model not to compute or store gradients, saving memory and
             # speeding up validation
             with torch.no_grad():
@@ -658,11 +638,12 @@ def train_Features(model, train_dataloader, validation_dataloader, epochs, devic
 
             # Get the "logits" output by the model. The "logits" are the output
             # values prior to applying an activation function like the softmax.
-            
+
             logits = outputs[0]
             label_ids = batch[-1]
 
-            validation_loss = criterion(logits.view(-1, model.n_class), label_ids.view(-1))
+            validation_loss = criterion(
+                logits.view(-1, model.n_class), label_ids.view(-1))
 
             # print(logits)
 
@@ -799,7 +780,8 @@ def train_multitask(model, train_dataloader, validation_dataloader):
             logits = outputs[2]
             # print(logits)
             logits = logits.detach().cpu().numpy()
-            label_ids = batch[-1]  # We monitore only the first task on training
+            # We monitore only the first task on training
+            label_ids = batch[-1]
 
             # Calculate the accuracy for this batch of test sentences.
             current_accuracy = flat_accuracy(logits, label_ids)

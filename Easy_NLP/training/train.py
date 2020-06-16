@@ -99,12 +99,12 @@ def train_noFeatures(model, train_dataloader, validation_dataloader, epochs, dev
             # single value; the `.item()` function just returns the Python value
             # from the tensor.
             total_loss += loss.item()
-            """writer.add_scalar('training loss',
+            writer.add_scalar('training loss',
                               loss.item(),
                               epoch_i * len(train_dataloader)+step)
             writer.add_scalar('training Accuracy',
                               current_accuracy,
-                              epoch_i * len(train_dataloader)+step)"""
+                              epoch_i * len(train_dataloader)+step)
 
             # Perform a backward pass to calculate the gradients.
             loss.backward()
@@ -186,6 +186,12 @@ def train_noFeatures(model, train_dataloader, validation_dataloader, epochs, dev
 
             # print(logits)
 
+            writer.add_scalar('validation loss',
+                              validation_loss,
+                              epoch_i * len(train_dataloader)+step)
+            writer.add_scalar('validation Accuracy',
+                              current_accuracy,
+                              epoch_i * len(train_dataloader)+step)
             # Move logits and labels to CPU
             logits = logits.detach().cpu().numpy()
             label_ids = label_ids.to('cpu').numpy()
@@ -195,6 +201,22 @@ def train_noFeatures(model, train_dataloader, validation_dataloader, epochs, dev
             tmp_eval_f1 = flat_f1(logits, label_ids)
             tmp_eval_recall = flat_recall(logits, label_ids)
             tmp_eval_precision = flat_precision(logits, label_ids)
+
+            writer.add_scalar('validation loss',
+                              validation_loss,
+                              epoch_i * len(validation_dataloader)+step)
+            writer.add_scalar('validation Accuracy',
+                              tmp_eval_accuracy,
+                              epoch_i * len(validation_dataloader)+step)
+            writer.add_scalar('validation f1',
+                              tmp_eval_f1,
+                              epoch_i * len(validation_dataloader)+step)
+            writer.add_scalar('validation f1',
+                              tmp_eval_recall,
+                              epoch_i * len(validation_dataloader)+step)
+            writer.add_scalar('recall f1',
+                              tmp_eval_precision,
+                              epoch_i * len(validation_dataloader)+step)
             # Accumulate the total scores.
             eval_accuracy += tmp_eval_accuracy
             eval_f1 += tmp_eval_f1
@@ -373,7 +395,7 @@ def train_crossValidation(model, train_dataloader, validation_dataloader, epochs
         nb_eval_steps, nb_eval_examples = 0, 0
         validation_loss = 0
         # Evaluate data for one epoch
-        for batch in validation_dataloader:
+        for step, batch in enumerate(validation_dataloader):
 
             # Add batch to GPU
             batch = tuple(t.to(device) for t in batch)

@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name='EasyNLP',
-    version='0.1',
+    version='0.2',
     author="Boumadane Abdelmoumene",
     author_email="fa_boumadane@esi.dz",
     description="An NLP Utility Package",
@@ -20,5 +20,10 @@ setuptools.setup(
     install_requires=[
         "pandas",
         "numpy",
+        "scikit-learn",
+        "transformers",
+        "torch",
+        "treetaggerwrapper",
+        "twitterscraper",
     ],
 )

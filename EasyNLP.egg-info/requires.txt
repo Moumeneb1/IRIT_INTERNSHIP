@@ -1,0 +1,7 @@
+pandas
+numpy
+scikit-learn
+transformers
+torch
+treetaggerwrapper
+twitterscraper

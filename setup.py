@@ -2,8 +2,8 @@ import setuptools
 
 
 setuptools.setup(
-    name='EasyNLP',
-    version='0.2',
+    name='easy_nlp',
+    version='0.3',
     author="Boumadane Abdelmoumene",
     author_email="fa_boumadane@esi.dz",
     description="An NLP Utility Package",
@@ -11,7 +11,7 @@ setuptools.setup(
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
     url="https://github.com/Moumeneb1/IRIT_INTERNSHIP",
-    packages=['EasyNLP'],
+    packages=['easy_nlp'],
     classifiers=[
         "Programming Language :: Python :: 3",
          "License :: OSI Approved :: MIT License",
@@ -22,9 +22,11 @@ setuptools.setup(
         "numpy",
         "scikit-learn",
         "transformers",
-        "torch",
+        "torch==1.4.0",
         "treetaggerwrapper",
         "twitterscraper",
         "tensorboardX",
+        "torchvision==0.5.0",
+        "torchsampler @ git+https://github.com/ufoym/imbalanced-dataset-sampler#egg=imbalanced-dataset-sampler",
     ],
 )

@@ -1,9 +1,10 @@
 import setuptools
+from setuptools import find_packages
 
 
 setuptools.setup(
     name='easy_nlp',
-    version='0.3',
+    version='0.4',
     author="Boumadane Abdelmoumene",
     author_email="fa_boumadane@esi.dz",
     description="An NLP Utility Package",
@@ -11,7 +12,9 @@ setuptools.setup(
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
     url="https://github.com/Moumeneb1/IRIT_INTERNSHIP",
-    packages=['easy_nlp'],
+    # packages=['easy_nlp'],
+    package_dir={"": "."},
+    packages=find_packages("."),
     classifiers=[
         "Programming Language :: Python :: 3",
          "License :: OSI Approved :: MIT License",

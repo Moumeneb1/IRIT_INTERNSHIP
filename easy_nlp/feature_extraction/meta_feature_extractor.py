@@ -2,7 +2,7 @@ import re
 import treetaggerwrapper
 
 
-class FeaturesExtraction:
+class MetaFeaturesExtraction:
 
     def __init__(self, df, text_column):
         self.df = df

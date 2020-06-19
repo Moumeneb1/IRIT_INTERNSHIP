@@ -30,6 +30,7 @@ setuptools.setup(
         "twitterscraper",
         "tensorboardX",
         "torchvision==0.5.0",
+        "pandas-profiling",
         "torchsampler @ git+https://github.com/ufoym/imbalanced-dataset-sampler#egg=imbalanced-dataset-sampler",
     ],
 )

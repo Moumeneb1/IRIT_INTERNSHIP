@@ -24,7 +24,7 @@ setuptools.setup(
         "pandas",
         "numpy",
         "scikit-learn",
-        "transformers=2.4.1",
+        "transformers==2.4.1",
         "torch==1.4.0",
         "treetaggerwrapper",
         "twitterscraper",

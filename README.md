@@ -158,6 +158,7 @@ This library,is intended for NLP entheusiast to start quickly working on classif
 
 You can look at the examples folder to know how to use IT 
 
+If you wanna use LM we advice you to instal [__apex amp__](https://github.com/NVIDIA/apex.git) 
 ## Reference
 
 --

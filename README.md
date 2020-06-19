@@ -163,7 +163,19 @@ If you wanna use LM we advice you to instal [__apex amp__](https://github.com/NV
 
 ## Glove & FastText
 
-If you wanna use Glove and FastText we invite to use the package on [nlpcrisis](https://github.com/benamarazitoune/nlpcrisis)
-## Reference
+If you wanna use Glove and FastText we invite to use the package on [nlpcrisis](http://localhost:6565/notebooks/PFE/nlpcrisis/Codes/deep_learning/1_design/3_retrofitting_WE.ipynb)
 
---
+
+
+## Citation
+
+The pipeline i developped was used in improving results using state of the art models on crisis tweets classification, We now have a paper that shows this library improved the results for using if you can cite 🤗  :
+
+```bibtex
+@article{A three-level classification of French tweets in ecological crises,
+  title={A three-level classification of French tweets in ecological crises},
+  author={ Diego Kozlowski and Elisa Lannelongue and FrédéricSaudemont  and Farah Benamara and Alda Mari and Véronique Moriceaua and Abdelmoumene Boumadanea},
+  journal={Information Processing & Management},
+  year={2020},
+  volume={Volume 57, Issue 5}
+}

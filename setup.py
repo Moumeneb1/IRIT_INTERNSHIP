@@ -31,6 +31,7 @@ setuptools.setup(
         "tensorboardX",
         "torchvision==0.5.0",
         "wordcloud",
+        "nltk",
         "torchsampler @ git+https://github.com/ufoym/imbalanced-dataset-sampler#egg=imbalanced-dataset-sampler",
     ],
 )

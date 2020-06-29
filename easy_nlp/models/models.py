@@ -1,10 +1,9 @@
 from torch import nn
 import torch
-from transformers import AutoConfig,AutoModel
+from transformers import AutoConfig, AutoModel
 from torch.nn import CrossEntropyLoss
 import sys
 import torch.nn.functional as F
-
 
 
 class BasicBertForClassification(nn.Module):
@@ -41,7 +40,7 @@ class BasicBertForClassification(nn.Module):
 
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
-        return logits# Pre-Softmax values 
+        return (logits,)  # Pre-Softmax values
 
     @staticmethod
     def load(model_path: str):
@@ -49,11 +48,13 @@ class BasicBertForClassification(nn.Module):
         @param model_path (str): path to model
         @return model (nn.Module): model with saved parameters
         """
-        params = torch.load(model_path, map_location=lambda storage, loc: storage)
+        params = torch.load(
+            model_path, map_location=lambda storage, loc: storage)
         args = params['args']
         bert_base_config = args['bert_config']
         bert_base_model = AutoModel.from_config(bert_base_config)
-        model = BasicBertForClassification(bert_base_model,args['n_class'],args['dropout_rate'])
+        model = BasicBertForClassification(
+            bert_base_model, args['n_class'], args['dropout_rate'])
         model.load_state_dict(params['state_dict'])
 
         return model
@@ -74,7 +75,6 @@ class BasicBertForClassification(nn.Module):
 class BertFeaturesForSequenceClassification(nn.Module):
 
     def __init__(self, base_bert_model, n_class, n_features, dropout_rate=0.1):
-        
         """
         :param base_bert_model: a bert base model can be Bert,Flaubert or Camembert 
         :param n_class: int
@@ -112,7 +112,7 @@ class BertFeaturesForSequenceClassification(nn.Module):
             input_ids=b_input_ids, attention_mask=b_input_mask)
 
         output = pooled_output[0]
-        pooled_output = output[:, 0] #Retrieve the first hidden state 
+        pooled_output = output[:, 0]  # Retrieve the first hidden state
 
         pooled_output = torch.cat([pooled_output, b_meta_features], dim=-1)
         pooled_output = F.gelu(self.hidden(self.dropout(pooled_output)))
@@ -126,11 +126,13 @@ class BertFeaturesForSequenceClassification(nn.Module):
         @param model_path (str): path to model
         @return model (nn.Module): model with saved parameters
         """
-        params = torch.load(model_path, map_location=lambda storage, loc: storage)
+        params = torch.load(
+            model_path, map_location=lambda storage, loc: storage)
         args = params['args']
         bert_base_config = args['bert_config']
         bert_base_model = AutoModel.from_config(bert_base_config)
-        model = BertFeaturesForSequenceClassification(bert_base_model,args['n_class'],args['n_features'],args['dropout_rate'])
+        model = BertFeaturesForSequenceClassification(
+            bert_base_model, args['n_class'], args['n_features'], args['dropout_rate'])
         model.load_state_dict(params['state_dict'])
 
         return model
@@ -141,7 +143,7 @@ class BertFeaturesForSequenceClassification(nn.Module):
         """
         print('save model parameters to [%s]' % path, file=sys.stderr)
         params = {
-            'args': dict(bert_config=self.bert.config, n_class=self.n_class,n_features = self.n_features, dropout_rate=self.dropout_rate),
+            'args': dict(bert_config=self.bert.config, n_class=self.n_class, n_features=self.n_features, dropout_rate=self.dropout_rate),
             'state_dict': self.state_dict()
         }
 
@@ -150,14 +152,12 @@ class BertFeaturesForSequenceClassification(nn.Module):
 
 class Lstm_Bert_Model(nn.Module):
 
-    def __init__(self, base_bert_model, n_class, n_features, dropout_rate=0.1):
-        
+    def __init__(self, base_bert_model, n_class, dropout_rate=0.1):
         """
         :param base_bert_model: a bert base model can be Bert,Flaubert or Camembert 
         :param n_class: int
-        :pram n_features: int 
         :param dropout_rate : float 
-        
+
         """
 
         super(Lstm_Bert_Model, self).__init__()
@@ -166,13 +166,11 @@ class Lstm_Bert_Model(nn.Module):
         self.lstm_hidden_size = self.bert.config.hidden_size
         self.n_class = n_class
         self.dropout_rate = dropout_rate
-        self.lstm = nn.LSTM(self.bert.config.hidden_size, self.lstm_hidden_size, bidirectional=True)
-        self.classifier = nn.Linear(self.lstm_hidden_size * 2, n_class, bias=True)
+        self.lstm = nn.LSTM(self.bert.config.hidden_size,
+                            self.lstm_hidden_size, bidirectional=True)
+        self.classifier = nn.Linear(
+            self.lstm_hidden_size * 2, n_class, bias=True)
         self.dropout = nn.Dropout(p=self.dropout_rate)
-
-
-
-
 
     def forward(self, batch):
         """
@@ -181,20 +179,19 @@ class Lstm_Bert_Model(nn.Module):
         """
         b_input_ids = batch[0]
         b_input_mask = batch[1]
-        b_meta_features = batch[2]
 
-        pooled_output = self.bert(input_ids=b_input_ids, attention_mask=b_input_mask)
+        pooled_output = self.bert(
+            input_ids=b_input_ids, attention_mask=b_input_mask)
         output = pooled_output[0]
-        
+
         output = output.permute(1, 0, 2)
         enc_hiddens, (last_hidden, last_cell) = self.lstm(output)
-        output_hidden = torch.cat((last_hidden[0], last_hidden[1]), dim=1)  # (batch_size, 2*hidden_size)
+        # (batch_size, 2*hidden_size)
+        output_hidden = torch.cat((last_hidden[0], last_hidden[1]), dim=1)
         output_hidden = self.dropout(output_hidden)
         logits = self.classifier(output_hidden)
-        
-    
-        return  (logits,)# add hidden states and attention if they are here
 
+        return (logits,)  # add hidden states and attention if they are here
 
     @staticmethod
     def load(model_path: str):
@@ -202,11 +199,13 @@ class Lstm_Bert_Model(nn.Module):
         @param model_path (str): path to model
         @return model (nn.Module): model with saved parameters
         """
-        params = torch.load(model_path, map_location=lambda storage, loc: storage)
+        params = torch.load(
+            model_path, map_location=lambda storage, loc: storage)
         args = params['args']
         bert_base_config = args.bert_config
         bert_base_model = AutoModel.from_config(bert_base_config)
-        model = Lstm_Bert_Model(bert_base_model,args['n_class'],args['n_features'],args['dropout_rate'])
+        model = Lstm_Bert_Model(
+            bert_base_model, args['n_class'], args['dropout_rate'])
         model.load_state_dict(params['state_dict'])
 
         return model
@@ -217,19 +216,16 @@ class Lstm_Bert_Model(nn.Module):
         """
         print('save model parameters to [%s]' % path, file=sys.stderr)
         params = {
-            'args': dict(bert_config=self.bert.config, n_class=self.n_class,n_features = self.n_features, dropout_rate=self.dropout_rate),
+            'args': dict(bert_config=self.bert.config, n_class=self.n_class, dropout_rate=self.dropout_rate),
             'state_dict': self.state_dict()
         }
 
         torch.save(params, path)
 
 
-
-
 class CNN_Bert_Model(nn.Module):
 
-    def __init__(self, base_bert_model, n_class, output_channels,kernel_size ,dropout_rate=0.1):
-        
+    def __init__(self, base_bert_model, n_class, output_channels, kernel_size, dropout_rate=0.1):
         """
         :param base_bert_model: a bert base model can be Bert,Flaubert or Camembert 
         :param n_class: int
@@ -237,7 +233,7 @@ class CNN_Bert_Model(nn.Module):
         :output_channels : int 
         :kernel_size : int 
         :param dropout_rate : float 
-        
+
         """
 
         super(CNN_Bert_Model, self).__init__()
@@ -246,14 +242,14 @@ class CNN_Bert_Model(nn.Module):
         self.lstm_hidden_size = self.bert.config.hidden_size
         self.n_class = n_class
         self.dropout_rate = dropout_rate
-        self.conv1d = m = nn.Conv1d(self.bert.config.hidden_size,output_channels, kernel_size) 
+        self.output_channels = output_channels
+        self.kernel_size = kernel_size
+        self.conv1d = m = nn.Conv1d(
+            self.bert.config.hidden_size, output_channels, kernel_size)
         #self.hidden_1 = nn.Linear(256,10)
-        self.classifier = nn.Linear(256, n_class, bias=True)
+        self.classifier = nn.Linear(output_channels, n_class, bias=True)
         self.dropout = nn.Dropout(p=self.dropout_rate)
         self.activation = nn.LeakyReLU()
-
-
-
 
     def forward(self, batch):
         """
@@ -264,22 +260,21 @@ class CNN_Bert_Model(nn.Module):
         b_input_mask = batch[1]
         b_meta_features = batch[2]
 
-        pooled_output = self.bert(input_ids=b_input_ids, attention_mask=b_input_mask)
+        pooled_output = self.bert(
+            input_ids=b_input_ids, attention_mask=b_input_mask)
         output = pooled_output[0]
-        
+
         batch_size = output.size(0)
         output = output.permute(0, 2, 1)
 
-        enc_hiddens  = self.conv1d(output)
+        enc_hiddens = self.conv1d(output)
         enc_hiddens = self.activation(enc_hiddens)
-        output_hidden , indices = torch.max(enc_hiddens,dim=2)
+        output_hidden, indices = torch.max(enc_hiddens, dim=2)
 
         output_hidden = self.dropout(output_hidden)
         logits = self.classifier(output_hidden)
-        
-    
-        return (logits,)# add hidden states and attention if they are here
 
+        return (logits,)  # add hidden states and attention if they are here
 
     @staticmethod
     def load(model_path: str):
@@ -287,11 +282,13 @@ class CNN_Bert_Model(nn.Module):
         @param model_path (str): path to model
         @return model (nn.Module): model with saved parameters
         """
-        params = torch.load(model_path, map_location=lambda storage, loc: storage)
+        params = torch.load(
+            model_path, map_location=lambda storage, loc: storage)
         args = params['args']
         bert_base_config = args.bert_config
         bert_base_model = AutoModel.from_config(bert_base_config)
-        model = CNN_Bert_Model(bert_base_model,args['n_class'],args['output_channels'],args['kernel_size'],args['dropout_rate'])
+        model = CNN_Bert_Model(
+            bert_base_model, args['n_class'], args['output_channels'], args['kernel_size'], args['dropout_rate'])
         model.load_state_dict(params['state_dict'])
 
         return model
@@ -302,14 +299,11 @@ class CNN_Bert_Model(nn.Module):
         """
         print('save model parameters to [%s]' % path, file=sys.stderr)
         params = {
-            'args': dict(bert_config=self.bert.config, n_class=self.n_class,n_features = self.n_features, dropout_rate=self.dropout_rate),
+            'args': dict(bert_config=self.bert.config, n_class=self.n_class, output_channels=self.output_channels, kernel_size=self.kernel_size, dropout_rate=self.dropout_rate),
             'state_dict': self.state_dict()
         }
 
         torch.save(params, path)
-
-
-
 
 
 class BertMultiTask(nn.Module):

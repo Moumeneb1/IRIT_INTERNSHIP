@@ -58,7 +58,7 @@ This project has a main pipeline with several sideline pieces of analyisis. The 
 
 
 ```python 
->>> from EasyNLP.preprocessing.text_preprocessing import TextPreprocessing
+>>> from easy_nlp.preprocessing import TextPreprocessing
 >>> text_preprocessing = TextPreprocessing(df,"TEXT")
 >>> text_preprocessing.fit_transform()
 ```
@@ -69,7 +69,7 @@ This project has a main pipeline with several sideline pieces of analyisis. The 
 3. __features_extraction__ : extract features from your tweets using features extraction [__feature_extraction__](Easy_NLP/feature_extraction)
 
 ```python 
->>> from EasyNLP.preprocessing.feature_enginering import FeaturesExtraction
+>>> from easy_nlp.feature_extraction import FeaturesExtraction
 >>> featuresExtrator = FeaturesExtraction(df,"TEXT")
 >>> featuresExtrator.fit_transform()
 ```
@@ -77,7 +77,7 @@ This project has a main pipeline with several sideline pieces of analyisis. The 
 The package also allows tokenizing texts as Bert input, the Bert model requires Mask and tokens as IDS 
 
 ```python
-from EasyNLP.feature_extraction.bert_input import BertInput
+from easy_nlp.feature_extraction import BertInput
 from Transformers import FlaubertTokenizer
 Tokenizer = FlaubertTokenizer.from_pretrained('flaubert-base-cased')
 bert_input= BertInput(Tokenizer)
@@ -96,7 +96,7 @@ We enhanced Bert models using several technics :
 
 ```python 
 >>> from transformers import FlaubertModel
->>> from EAasyNLP.models.models import BasicBertForClassification,
+>>> from easy_nlp.models import BasicBertForClassification,
 >>> base_model = FlaubertModel.from_pretrained('flaubert-base-cased')
 >>> model = BasicBertForClassification(base_model,n_class)
 ```
@@ -104,7 +104,7 @@ We enhanced Bert models using several technics :
 
 ```python
 >>> from transformers import AdamW,get_linear_schedule_with_warmup
->>> from EasyNLP.training.train import train
+>>> from easy_nlp.training import train
 
 >>> optimizer = AdamW(model.parameters(),
                   lr = 1e-5, # args.learning_rate - default is 5e-5, our notebook had 2e-5
@@ -139,16 +139,11 @@ As side projects we have
 
   
 ## INSTALL 
-```bash
-$ pip install easy_NLP
-```
-
-or 
+ 
 
 ```bash
 $ git clone https://github.com/Moumeneb1/IRIT_INTERNSHIP.git
-$ cd IRIT_INTERNSHIP
-$ pip install .
+$ pip install IRIT_INTERNSHIP/
 ```
 
 
@@ -172,10 +167,18 @@ If you wanna use Glove and FastText we invite to use the package on [nlpcrisis](
 The pipeline i developped was used in improving results using state of the art models on crisis tweets classification, We now have a paper that shows this library improved the results for using if you can cite 🤗  :
 
 ```bibtex
-@article{A three-level classification of French tweets in ecological crises,
-  title={A three-level classification of French tweets in ecological crises},
-  author={ Diego Kozlowski and Elisa Lannelongue and FrédéricSaudemont  and Farah Benamara and Alda Mari and Véronique Moriceaua and Abdelmoumene Boumadanea},
-  journal={Information Processing & Management},
-  year={2020},
-  volume={Volume 57, Issue 5}
+@article{Kozlowski-et-al2020,
+title = "A three-level classification of French tweets in ecological crises",
+journal = "Information Processing & Management",
+volume = "57",
+number = "5",
+pages = "102284",
+year = "2020",
+issn = "0306-4573",
+doi = "https://doi.org/10.1016/j.ipm.2020.102284",
+url = "http://www.sciencedirect.com/science/article/pii/S0306457320300650",
+author = "Diego Kozlowski and Elisa Lannelongue and Frédéric Saudemont and Farah Benamara and Alda Mari and Véronique Moriceau and Abdelmoumene Boumadane",
+keywords = "Crisis response from social media, Machine learning, Natural language processing, Transfer learning",
 }
+
+```

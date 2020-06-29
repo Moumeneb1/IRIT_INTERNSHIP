@@ -50,6 +50,10 @@ class BertInput():
 
     def mask_sents(self, input_ids):
         attention_masks = []
+        """ mask sentences        
+        :param text: input_ids     
+        :returns: masked sentences 
+        """
 
         # For each sentence...
         for sent in input_ids:
@@ -63,7 +67,12 @@ class BertInput():
             # Store the attention mask for this sentence.
             attention_masks.append(att_mask)
         return attention_masks
+
     def fit_transform(self, sents):
+        """ get input_ids and mask_ids         
+        :param sents: list of sentences       
+        :returns: input ids and masks  
+        """
         input_ids = self.encode_sents(sents)
         input_ids = self.pad_sents(input_ids)
         mask = self.mask_sents(input_ids)

@@ -3,6 +3,11 @@ import pandas as pd
 
 
 def generate_report(df_path, report_path):
+    """
+    generate report from df       
+    :param df_path: dataframe path      
+    :returns: null  
+    """
     df = pd.read_csv(df_path)
     profile = ProfileReport(
         df, title="Pandas Profiling Report Before prepocessing")

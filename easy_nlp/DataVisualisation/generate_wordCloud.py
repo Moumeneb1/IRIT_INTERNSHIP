@@ -7,6 +7,12 @@ import matplotlib.pyplot as plt
 
 
 def make_wordcloud(sentence):
+    """
+    display wordcloud of a sentence 
+    :param sentence : text   
+    :param        
+    :returns: true if tweet has image mention False if it's not 
+    """
     wordcloud = WordCloud(max_font_size=50, max_words=100,
                           background_color="white").generate(text)
     plt.figure()

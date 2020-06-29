@@ -66,14 +66,28 @@ class LinguisticFeatures:
         return lex_df
 
     def number_verbs(self, list_pos_tweet):
+        """
+        counts number of verbs        
+        :param text: lis_pos_tweet      
+        :returns: number of verbs  
+        """
         n = sum([bool(re.search(r'VER', l)) for l in list_pos_tweet])
         return n
 
     def number_proper_nouns(self, list_pos_tweet):
+        """count  number of proper_nouns         
+        :param list_pos_tweet: list_pos_tweet      
+        :returns: number of pronoun nouns  
+        """
         n = sum([bool(l == 'NAM') for l in list_pos_tweet])
         return n
 
     def number_imperative_verb(self, list_pos_tweet):
+        """ returns number of proper_nouns         
+        :param list_pos_tweet: list_pos_tweet      
+        :returns: number of pronoun nouns  
+        """
+
         n = sum([bool(l == 'VER:impe') for l in list_pos_tweet])
         return n
 
@@ -111,7 +125,7 @@ class LinguisticFeatures:
             [x['polarity']*x['strength'] for x in lod])/len(lod) if len(lod) >= 1 else 0)
         return(avg_pol)
 
-    def transform(self):
+    def fit_transform(self):
 
         # Parsing (lemmatisation and pos-tagging)
         tagger = treetaggerwrapper.TreeTagger(TAGLANG='fr')

@@ -43,7 +43,7 @@ This project has a main pipeline with several sideline pieces of analyisis. The 
 1. __Scrapping data__ : You can eaither scrap tweets or enhance existing tweets features, Just with tweets IDS using [__feature_extraction__](Easy_NLP/scrapping)
 
 ```python 
->>> from EasyNLP.scrapping.twitter_scrap import Scrapper
+>>> from easy_nlp.scrapping.twitter_scrap import Scrapper
 
 >>> scrapper = Scrapper()
 >>> keywords= ['innondation','occitanie','crises']
@@ -126,7 +126,7 @@ We enhanced Bert models using several technics :
                                             num_training_steps = total_steps)
 
 
->>> train(model,train_dataloader,validation_dataloader,epochs,torch.device('cuda'),optimizer,scheduler,criterion)
+>>> fit(model,train_dataloader,validation_dataloader,epochs,torch.device('cuda'),optimizer,scheduler,criterion)
 ```
 
 

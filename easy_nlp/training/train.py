@@ -90,6 +90,7 @@ def fit(model, train_dataloader, validation_dataloader, epochs, device, optimize
 
             # Move logits back to cpu for metrics calculations
             logits = logits.detach().cpu().numpy()
+            label_ids = label_ids.to('cpu').numpy()
 
             # Calculate the accuracy for this batch of test sentences.
             current_accuracy = flat_accuracy(logits, label_ids)
@@ -99,12 +100,12 @@ def fit(model, train_dataloader, validation_dataloader, epochs, device, optimize
             # single value; the `.item()` function just returns the Python value
             # from the tensor.
             total_loss += loss.item()
-            """writer.add_scalar('training loss',
+            writer.add_scalar('training loss',
                               loss.item(),
                               epoch_i * len(train_dataloader)+step)
             writer.add_scalar('training Accuracy',
                               current_accuracy,
-                              epoch_i * len(train_dataloader)+step)"""
+                              epoch_i * len(train_dataloader)+step)
 
             # Perform a backward pass to calculate the gradients.
             loss.backward()
@@ -154,7 +155,7 @@ def fit(model, train_dataloader, validation_dataloader, epochs, device, optimize
         nb_eval_steps, nb_eval_examples = 0, 0
         validation_loss = 0
         # Evaluate data for one epoch
-        for batch in validation_dataloader:
+        for step_valid, batch in enumerate(validation_dataloader):
 
             # Add batch to GPU
             batch = tuple(t.to(device) for t in batch)
@@ -203,7 +204,19 @@ def fit(model, train_dataloader, validation_dataloader, epochs, device, optimize
 
             # Track the number of batches
             nb_eval_steps += 1
-        validation_loss = validation_loss/len(validation_dataloader)
+            validation_loss = validation_loss/len(validation_dataloader)
+            writer.add_scalar('validation Accuracy',
+                              tmp_eval_accuracy,
+                              epoch_i * len(validation_dataloader)+step_valid)
+            writer.add_scalar('validation F1',
+                              tmp_eval_f1,
+                              epoch_i * len(validation_dataloader)+step_valid)
+            writer.add_scalar('validation recall',
+                              tmp_eval_recall,
+                              epoch_i * len(validation_dataloader)+step_valid)
+            writer.add_scalar('validation precesion',
+                              tmp_eval_precision,
+                              epoch_i * len(validation_dataloader)+step_valid)
         is_better = len(hist_valid_scores) == 0 or validation_loss < min(
             hist_valid_scores)
         hist_valid_scores.append(validation_loss)
@@ -317,12 +330,12 @@ def fit_crossValidation(model, train_dataloader, validation_dataloader, epochs, 
             # single value; the `.item()` function just returns the Python value
             # from the tensor.
             total_loss += loss.item()
-            """writer.add_scalar('training loss',
+            writer.add_scalar('training loss',
                               loss.item(),
                               epoch_i * len(train_dataloader)+step)
             writer.add_scalar('training Accuracy',
                               current_accuracy,
-                              epoch_i * len(train_dataloader)+step)"""
+                              epoch_i * len(train_dataloader)+step)
 
             # Perform a backward pass to calculate the gradients.
             loss.backward()

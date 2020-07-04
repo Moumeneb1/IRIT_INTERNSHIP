@@ -1,2 +1,2 @@
-from train import *
-from metrics import *
+from .train import Train
+from .metrics import *

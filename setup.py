@@ -4,7 +4,7 @@ from setuptools import find_packages
 
 setuptools.setup(
     name='easy_nlp',
-    version='0.4',
+    version='0.7',
     author="Boumadane Abdelmoumene",
     author_email="fa_boumadane@esi.dz",
     description="An NLP Utility Package",
@@ -32,6 +32,7 @@ setuptools.setup(
         "torchvision==0.5.0",
         "wordcloud",
         "nltk",
+        "pandas-profiling",
         "torchsampler @ git+https://github.com/ufoym/imbalanced-dataset-sampler#egg=imbalanced-dataset-sampler",
     ],
 )

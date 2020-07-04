@@ -1,2 +1,1 @@
-from .generate_report import *
-from .generate_wordCloud import *
+from .data_visualisation import *

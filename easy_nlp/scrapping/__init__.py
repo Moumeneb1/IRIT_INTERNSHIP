@@ -1,1 +1,1 @@
-from .twitter_scrap import *
+from .twitterscrapping import *

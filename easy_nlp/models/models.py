@@ -72,7 +72,7 @@ class BasicBertForClassification(nn.Module):
         torch.save(params, path)
 
 
-class BertFeaturesForSequenceClassification(nn.Module):
+class BertFeaturesForClassification(nn.Module):
 
     def __init__(self, base_bert_model, n_class, n_features, dropout_rate=0.1):
         """
@@ -82,7 +82,7 @@ class BertFeaturesForSequenceClassification(nn.Module):
         :param dropout_rate : float 
         """
 
-        super(BertFeaturesForSequenceClassification, self).__init__()
+        super(BertFeaturesForClassification, self).__init__()
         self.n_class = n_class
         self.n_features = n_features
         self.bert = base_bert_model
@@ -131,7 +131,7 @@ class BertFeaturesForSequenceClassification(nn.Module):
         args = params['args']
         bert_base_config = args['bert_config']
         bert_base_model = AutoModel.from_config(bert_base_config)
-        model = BertFeaturesForSequenceClassification(
+        model = BertFeaturesForClassification(
             bert_base_model, args['n_class'], args['n_features'], args['dropout_rate'])
         model.load_state_dict(params['state_dict'])
 
@@ -150,7 +150,7 @@ class BertFeaturesForSequenceClassification(nn.Module):
         torch.save(params, path)
 
 
-class Lstm_Bert_Model(nn.Module):
+class LstmBertForClassification(nn.Module):
 
     def __init__(self, base_bert_model, n_class, dropout_rate=0.1):
         """
@@ -160,7 +160,7 @@ class Lstm_Bert_Model(nn.Module):
 
         """
 
-        super(Lstm_Bert_Model, self).__init__()
+        super(LstmBertForClassification, self).__init__()
 
         self.bert = base_bert_model
         self.lstm_hidden_size = self.bert.config.hidden_size
@@ -204,7 +204,7 @@ class Lstm_Bert_Model(nn.Module):
         args = params['args']
         bert_base_config = args.bert_config
         bert_base_model = AutoModel.from_config(bert_base_config)
-        model = Lstm_Bert_Model(
+        model = LstmBertForClassification(
             bert_base_model, args['n_class'], args['dropout_rate'])
         model.load_state_dict(params['state_dict'])
 
@@ -223,7 +223,7 @@ class Lstm_Bert_Model(nn.Module):
         torch.save(params, path)
 
 
-class CNN_Bert_Model(nn.Module):
+class CNNBertForClassification(nn.Module):
 
     def __init__(self, base_bert_model, n_class, output_channels, kernel_size, dropout_rate=0.1):
         """
@@ -236,7 +236,7 @@ class CNN_Bert_Model(nn.Module):
 
         """
 
-        super(CNN_Bert_Model, self).__init__()
+        super(CNNBertForClassification, self).__init__()
 
         self.bert = base_bert_model
         self.lstm_hidden_size = self.bert.config.hidden_size
@@ -287,7 +287,7 @@ class CNN_Bert_Model(nn.Module):
         args = params['args']
         bert_base_config = args.bert_config
         bert_base_model = AutoModel.from_config(bert_base_config)
-        model = CNN_Bert_Model(
+        model = CNNBertForClassification(
             bert_base_model, args['n_class'], args['output_channels'], args['kernel_size'], args['dropout_rate'])
         model.load_state_dict(params['state_dict'])
 
@@ -393,6 +393,190 @@ class BertMultiTask(nn.Module):
 
         params = {
             'args': dict(bert_config=self.bert.config, n_class=self.n_class, dropout_rate=self.dropout_rate),
+            'state_dict': self.state_dict()
+        }
+
+        torch.save(params, path)
+
+
+class ThreeTaskLearning(nn.Module):
+
+    def __init__(self, model, dropout_rate, device):
+        """
+        :param bert_config: str, BERT configuration description
+        :param device: torch.device
+        :param n_class: int
+        """
+
+        super(ThreeTaskLearning, self).__init__()
+        self.bert = model
+        self.linear_cat = nn.Linear(self.bert.config.hidden_size, 7)
+        self.linear_cat3 = nn.Linear(self.bert.config.hidden_size, 3)
+        self.linear_cat2 = nn.Linear(self.bert.config.hidden_size, 2)
+
+        self.device = device
+        self.dropout_rate = dropout_rate
+
+        self.dropout = nn.Dropout(p=self.dropout_rate)
+
+        self.activation = nn.LeakyReLU()
+
+    def forward(self, batch):
+        """
+        :param batch: list[str], list of sentences (NOTE: untokenized, continuous sentences)
+        :return: pre_softmax, torch.tensor of shape (batch_size, n_class)
+        """
+        b_input_ids = batch[0].to(self.device)
+        b_input_mask = batch[1].to(self.device)
+
+        pooled_output = self.bert(
+            input_ids=b_input_ids, attention_mask=b_input_mask)
+
+        #"""Just opn flaubert """
+        output = pooled_output[0]
+        # take the first token hidden state (like Bert)
+        pooled_output = output[:, 0]
+        #'''the end '''
+        # on bert
+
+        logits_cat = self.linear_cat((pooled_output))
+        logits_cat3 = self.linear_cat3((pooled_output))
+        logits_cat2 = self.linear_cat2((pooled_output))
+
+        outputs = (logits_cat, logits_cat3, logits_cat2,)
+
+        if len(batch) > 2:
+            b_labels_cat = batch[2].to(self.device)
+            b_labels_cat3 = batch[3].to(self.device)
+            b_labels_cat2 = batch[4].to(self.device)
+
+            loss_fct_cat = CrossEntropyLoss()
+            loss_fct_cat3 = CrossEntropyLoss()
+            loss_fct_cat2 = CrossEntropyLoss()
+
+            loss = 0
+
+            loss += loss_fct_cat(logits_cat.view(-1, 7), b_labels_cat.view(-1))
+            loss += loss_fct_cat3(logits_cat3.view(-1, 3),
+                                  b_labels_cat3.view(-1))
+            loss += loss_fct_cat2(logits_cat2.view(-1, 2),
+                                  b_labels_cat2.view(-1))
+
+            outputs = (loss,) + outputs
+
+        return outputs
+
+    @staticmethod
+    def load(model_path: str, device):
+        """ Load the model from a file.
+        @param model_path (str): path to model
+        @return model (nn.Module): model with saved parameters
+        """
+        params = torch.load(
+            model_path, map_location=lambda storage, loc: storage)
+        args = params['args']
+        model = ThreeTaskLearning(device=device, **args)
+        model.load_state_dict(params['state_dict'])
+
+        return model
+
+    def save(self, path: str):
+        """ Save the model to a file.
+        @param path (str): path to the model
+        """
+        print('save model parameters to [%s]' % path, file=sys.stderr)
+
+        params = {
+            'args': dict(bert_config=self.bert.config, dropout_rate=self.dropout_rate),
+            'state_dict': self.state_dict()
+        }
+
+        torch.save(params, path)
+
+
+class TwoTaskLearning(nn.Module):
+
+    def __init__(self, model, dropout_rate, device):
+        """
+        :param bert_config: str, BERT configuration description
+        :param device: torch.device
+        :param n_class: int
+        """
+
+        super(TwoTaskLearning, self).__init__()
+        self.bert = model
+        self.linear_cat = nn.Linear(self.bert.config.hidden_size, 3)
+        self.linear_cat3 = nn.Linear(self.bert.config.hidden_size, 4)
+
+        self.device = device
+        self.dropout_rate = dropout_rate
+
+        self.dropout = nn.Dropout(p=self.dropout_rate)
+
+        self.activation = nn.LeakyReLU()
+
+    def forward(self, batch):
+        """
+        :param batch: list[str], list of sentences (NOTE: untokenized, continuous sentences)
+        :return: pre_softmax, torch.tensor of shape (batch_size, n_class)
+        """
+        b_input_ids = batch[0].to(self.device)
+        b_input_mask = batch[1].to(self.device)
+
+        pooled_output = self.bert(
+            input_ids=b_input_ids, attention_mask=b_input_mask)
+
+        #"""Just opn flaubert """
+        output = pooled_output[0]
+        # take the first token hidden state (like Bert)
+        pooled_output = output[:, 0]
+        #'''the end '''
+        # on bert
+
+        logits_cat = self.linear_cat((pooled_output))
+        logits_cat3 = self.linear_cat3((pooled_output))
+
+        outputs = (logits_cat, logits_cat3,)
+
+        if len(batch) > 2:
+            b_labels_cat = batch[2].to(self.device)
+            b_labels_cat3 = batch[3].to(self.device)
+
+            loss_fct_cat = CrossEntropyLoss()
+            loss_fct_cat3 = CrossEntropyLoss()
+
+            loss = 0
+
+            loss += loss_fct_cat(logits_cat.view(-1, 3), b_labels_cat.view(-1))
+            loss += loss_fct_cat3(logits_cat3.view(-1, 4),
+                                  b_labels_cat3.view(-1))
+
+            outputs = (loss,) + outputs
+
+        return outputs
+
+    @staticmethod
+    def load(model_path: str, device):
+        """ Load the model from a file.
+        @param model_path (str): path to model
+        @return model (nn.Module): model with saved parameters
+        """
+        params = torch.load(
+            model_path, map_location=lambda storage, loc: storage)
+        args = params['args']
+        model = TwoTaskLearning(device=device, **args)
+        model.load_state_dict(params['state_dict'])
+
+        return model
+
+    def save(self, path: str):
+        """ Save the model to a file.
+        @param path (str): path to the model
+        """
+        print('save model parameters to [%s]' % path, file=sys.stderr)
+
+        params = {
+            'args': dict(bert_config=self.bert.config, dropout_rate=self.dropout_rate),
             'state_dict': self.state_dict()
         }
 

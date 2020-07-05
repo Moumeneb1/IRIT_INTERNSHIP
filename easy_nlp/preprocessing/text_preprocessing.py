@@ -93,15 +93,25 @@ class TextPreprocessing:
 
         return re.sub('["$#%()*+,-@./:;?![\]^_`{|}~\n\t’\']', ' ', text)
 
+    def remove_pic_tweet(text):
+        """
+        remove pic from tweet 
+        :param text : 
+        :return : text without pic
+        """
+        return re.sub(r'pic.twitter.com(.*?)\s(.*)', '', text)
+
     def fit_transform(self, inplace=False, pretraitement=[
-            remove_url,
-            remove_rt,
-            remove_at,
-            replace_and,
-            replace_lt_lg,
-            remove_numero,
-            remove_punctuations,
-            remove_extraspace]):
+        remove_url,
+        remove_rt,
+        remove_at,
+        replace_and,
+        replace_lt_lg,
+        remove_numero,
+        remove_punctuations,
+        remove_extraspace,
+        remove_pic_tweet,
+    ]):
         """
         apply a list if transformations to text       
         :inplace : If true returns text on same column, if not on new column named preprocesed_column  

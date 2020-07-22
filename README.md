@@ -2,6 +2,7 @@
 
 ![Logo](logo_easy_nlp.png)
 
+EasyNLP is a toolkit that enables easy text preprocessing,featureExtraction, and neural models building to help you speed up your Natural Language Processing (NLP) research
 
 ## Structure
 

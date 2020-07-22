@@ -1,5 +1,7 @@
 # Easy NLP 
 
+![Logo](logo_easy_nlp.png)
+
 
 ## Structure
 

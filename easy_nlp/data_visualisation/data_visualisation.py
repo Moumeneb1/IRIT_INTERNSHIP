@@ -21,7 +21,7 @@ class WordCloudMaker:
         :param        
         :returns: true if tweet has image mention False if it's not 
         """
-        sentences = [word_tokenize(sentence) for sentence in sentences]
+        sentences = [word_tokenize(sentence,language='french') for sentence in sentences]
         stp_words = stopwords.words('french')
 
         sentences_cleaned = [
@@ -43,7 +43,7 @@ class WordCloudMaker:
         :param        
         :returns: true if tweet has image mention False if it's not 
         """
-        sentences = [word_tokenize(sentence) for sentence in sentences]
+        sentences = [word_tokenize(sentence,language='french') for sentence in sentences]
         stp_words = stopwords.words('french')
 
         sentences_cleaned = [

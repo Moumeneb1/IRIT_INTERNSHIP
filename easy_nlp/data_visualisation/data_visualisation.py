@@ -23,7 +23,9 @@ class WordCloudMaker:
         """
         sentences = [word_tokenize(sentence,language='french') for sentence in sentences]
         stp_words = stopwords.words('french')
-
+        #Show without numeros added on preprocessing
+        stp_words.append('numero')
+        
         sentences_cleaned = [
             word for sentence in sentences for word in sentence if word not in stp_words]
         sentences_cleaned = ' '.join(sentences_cleaned)
@@ -46,7 +48,9 @@ class WordCloudMaker:
         """
         sentences = [word_tokenize(sentence,language='french') for sentence in sentences]
         stp_words = stopwords.words('french')
-
+        #Show without numeros added on preprocessing
+        stp_words.append('numero')
+        
         sentences_cleaned = [
             word for sentence in sentences for word in sentence if word not in stp_words]
         sentences_cleaned = ' '.join(sentences_cleaned)

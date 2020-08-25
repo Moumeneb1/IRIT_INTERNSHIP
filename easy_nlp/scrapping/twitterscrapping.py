@@ -1,12 +1,11 @@
-import numpy as np
+import requests
+from bs4 import BeautifulSoup
+from twitterscraper.tweet import Tweet
+from twitterscraper import query_tweets
+import datetime
+import re
 import pandas as pd
-from os import path
-from PIL import Image
-from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
-import matplotlib.pyplot as plt
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from pandas_profiling import ProfileReport
+
 
 
 class Scrapper:

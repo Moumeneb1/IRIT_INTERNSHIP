@@ -202,7 +202,7 @@ class LstmBertForClassification(nn.Module):
         params = torch.load(
             model_path, map_location=lambda storage, loc: storage)
         args = params['args']
-        bert_base_config = args.bert_config
+        bert_base_config = args['bert_config']
         bert_base_model = AutoModel.from_config(bert_base_config)
         model = LstmBertForClassification(
             bert_base_model, args['n_class'], args['dropout_rate'])
@@ -285,7 +285,7 @@ class CNNBertForClassification(nn.Module):
         params = torch.load(
             model_path, map_location=lambda storage, loc: storage)
         args = params['args']
-        bert_base_config = args.bert_config
+        bert_base_config = args['bert_config']
         bert_base_model = AutoModel.from_config(bert_base_config)
         model = CNNBertForClassification(
             bert_base_model, args['n_class'], args['output_channels'], args['kernel_size'], args['dropout_rate'])

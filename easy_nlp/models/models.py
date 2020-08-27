@@ -258,7 +258,6 @@ class CNNBertForClassification(nn.Module):
         """
         b_input_ids = batch[0]
         b_input_mask = batch[1]
-        b_meta_features = batch[2]
 
         pooled_output = self.bert(
             input_ids=b_input_ids, attention_mask=b_input_mask)

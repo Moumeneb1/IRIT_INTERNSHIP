@@ -47,7 +47,7 @@ class FocalLoss2(nn.Module):
 
     def forward(self, logit, target):
 
-        logit = torch.nn.functional.softmax(logit, dim=1)
+        logit = torch.nn.functional.log_softmax(logit, dim=1)
 
         if logit.dim() > 2:
             # N,C,d1,d2 -> N,C,m (m=d1*d2*...)
